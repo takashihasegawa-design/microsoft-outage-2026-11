@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>マイクロソフト大規模障害 まとめ(非公式)</title>
+  <meta name="description" content="2026年11月の Microsoft 365 大規模障害についての非公式まとめ。公式情報（Microsoft 365 Service health / Azure Status）が優先します。">
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --card: #fffdf8;
+      --ink: #1d1b16;
+      --muted: #5c574d;
+      --line: #e4ddd0;
+      --accent: #8a4b12;
+      --warn-bg: #fff1d6;
+      --warn-ink: #6a3b00;
+      --ok-bg: #e7f4ea;
+      --ok-ink: #16532a;
+      --link: #0b4ea2;
+      --link-visited: #5b3d8f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+    header, main, footer { width: min(820px, calc(100% - 32px)); margin-left: auto; margin-right: auto; }
+    header { padding: 28px 0 8px; }
+    .kicker {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: none;
+      color: var(--accent);
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+    h1 {
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      line-height: 1.35;
+      margin: 0 0 12px;
+    }
+    .disclaimer {
+      background: var(--warn-bg);
+      color: var(--warn-ink);
+      border: 1px solid #efd7a2;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 12px 0 20px;
+      font-size: 0.95rem;
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 18px 16px;
+      margin: 0 0 16px;
+    }
+    h2 {
+      font-size: 1.08rem;
+      margin: 0 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+    p { margin: 0 0 10px; }
+    p:last-child, ul:last-child, dl:last-child, .table-wrap:last-child { margin-bottom: 0; }
+    ul { margin: 0 0 10px; padding-left: 1.2em; }
+    li { margin: 0 0 6px; }
+    a { color: var(--link); }
+    a:visited { color: var(--link-visited); }
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .badge-warn { background: var(--warn-bg); color: var(--warn-ink); }
+    .badge-ok { background: var(--ok-bg); color: var(--ok-ink); }
+    .badge-press {
+      display: inline-block;
+      background: #ececec;
+      color: #333;
+      border-radius: 4px;
+      padding: 0 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-right: 6px;
+      vertical-align: 1px;
+    }
+    dl {
+      display: grid;
+      grid-template-columns: 9.5em 1fr;
+      gap: 6px 12px;
+      margin: 0;
+    }
+    dt { color: var(--muted); font-weight: 600; }
+    dd { margin: 0; }
+    .table-wrap { overflow-x: auto; margin: 8px 0 0; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 520px; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+    th { background: #f7f3ea; font-weight: 700; white-space: nowrap; }
+    td:first-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .caption { color: var(--muted); font-size: 0.85rem; margin: 0 0 8px; }
+    footer { color: var(--muted); font-size: 0.85rem; padding: 8px 0 36px; }
+    @media (max-width: 640px) {
+      dl { grid-template-columns: 1fr; gap: 2px 0; }
+      dt { margin-top: 8px; }
+      dt:first-child { margin-top: 0; }
+      section { padding: 16px 14px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="kicker">非公式まとめ / 2026年11月</p>
+    <h1>マイクロソフト大規模障害 まとめ(非公式)</h1>
+    <p class="disclaimer">非公式のまとめです。公式情報(Microsoft 365 Service health / Azure Status)が優先します。</p>
+  </header>
+
+  <main>
+    <section id="conclusion">
+      <h2>結論</h2>
+      <p>Microsoft 365（Exchange Online など）で、世界の利用者が複数サービスに接続しづらい障害が続いています。公式の公開ステータスはサービス劣化（Service degradation）で、2026年11月13日 11:29 JST（02:29 UTC）の最新公式投稿時点でも、完全復旧は発表されていません。</p>
+    </section>
+
+    <section id="status">
+      <h2>現在の状況</h2>
+      <div class="status-row">
+        <span class="badge badge-warn">継続中（サービス劣化）</span>
+        <span class="badge badge-ok">Azure の広域イベントなし</span>
+      </div>
+      <dl>
+        <dt>状態</dt>
+        <dd>サービス劣化（Service degradation）。完全復旧の公式発表はない。</dd>
+        <dt>主対象</dt>
+        <dd>Microsoft 365（Exchange Online など）。消費者向け製品も公開ステータス上はサービス劣化。</dd>
+        <dt>公式番号</dt>
+        <dd>EX1550543、MO1550821</dd>
+        <dt>Azure</dt>
+        <dd>広域のアクティブイベントなし（Azure Status「There are currently no active events.」、公開ステータス「No Azure issues detected at this time.」）。</dd>
+        <dt>最新公式投稿</dt>
+        <dd>2026-11-13 11:29 JST（02:29 UTC）。オンラインになりつつある地域のトラフィックを支えるため、可能な範囲でインフラ容量の改善を適用中。適用した変更の結果を監視し、影響地域全体のサービス健全性を改善する戦略的対応を特定する、と説明。</dd>
+        <dt>次回更新予定</dt>
+        <dd>公開情報では確認できず。</dd>
+      </dl>
+    </section>
+
+    <section id="when">
+      <h2>発生日時（UTC / JST）</h2>
+      <p>公式がこの件の調査開始を投稿したのは 2026-11-12 17:54:26 UTC（2026-11-13 02:54:26 JST）です。最初の利用者影響がいつ始まったかは、公式の公開投稿からは確認できていません。</p>
+      <dl>
+        <dt>公式初報</dt>
+        <dd>2026-11-12 17:54 UTC / 2026-11-13 02:54 JST</dd>
+        <dt>最新更新</dt>
+        <dd>2026-11-13 02:29 UTC / 2026-11-13 11:29 JST</dd>
+      </dl>
+    </section>
+
+    <section id="impact">
+      <h2>影響サービス・地域</h2>
+      <p>公式の公開ステータス（<a href="https://status.cloud.microsoft/">status.cloud.microsoft</a>）は、Microsoft 365（法人・エンタープライズ）と消費者向け製品でサービス劣化とし、「複数の Microsoft 365 サービスに接続できない可能性がある」と表示しています（2026-11-13 11:43 JST 確認時も同じ表示）。</p>
+      <ul>
+        <li>当初の発表は、米州で Exchange Online のメールボックスに、複数の接続方式でアクセスできないという報告の調査でした。</li>
+        <li>その約13分後、任意の地域の Microsoft 365 サービス接続に影響しうると確認されました。</li>
+        <li>詳細な影響サービス・機能の一覧は、公式が Microsoft 365 管理センターの MO1550821（more info）にあると案内しています。公開ページだけでは一覧本文を確認できていません。</li>
+      </ul>
+    </section>
+
+    <section id="cause">
+      <h2>原因（公式発表の範囲）</h2>
+      <p>この件の事後報告（PIR）は、まだ公開されていません。以下は公式Xに順に書かれた説明で、根本原因は確定していません。</p>
+      <ul>
+        <li>複数地域のインフラの一部で負荷が上がっており、接続エラーの一因になっている可能性がある。</li>
+        <li>その負荷はトラフィックの増加ではなく、一部サーバーが予期せず利用できなくなり、残りのインフラに負担がかかったことによる。</li>
+        <li>サーバーが自動ヘルスチェックに失敗して利用不能になっている問題への構成変更を試験。失敗の起源は、サーバーヘルスを処理する特定コンポーネントにある可能性。開始時点と相関する最近の変更は、その時点では特定していない、とも説明。</li>
+        <li>後に、影響サーバー上の中核プロセスが過負荷になり、容量が失われていると説明。少数の最近の構成更新を差し戻すと回復が早まるかを、並行して評価。</li>
+        <li>いったん復帰したサーバーが、トラフィックを受けたあと再び応答しなくなる場合があり、旧構成での再構築も検証中。</li>
+        <li>直近の公式投稿では、オンラインになりつつある地域のトラフィックを支えるため、可能な範囲でインフラ容量の改善を適用している、と説明。</li>
+      </ul>
+    </section>
+
+    <section id="timeline">
+      <h2>時系列</h2>
+      <p class="caption">時刻は日本時間（JST、UTC+9）、分まで表示。主件 EX1550543 / MO1550821。出典はすべて公式アカウント @MSFT365Status。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>時刻（JST）</th>
+              <th>出来事</th>
+              <th>出典</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>11/13 02:54</td>
+              <td>米州で Exchange Online メールボックスへの接続障害を調査開始（EX1550543）</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120938282204688468">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 03:07</td>
+              <td>任意の地域の Microsoft 365 接続に影響しうると確認</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120941584220827979">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 03:35</td>
+              <td>複数地域のインフラで負荷上昇。MO1550821 も案内</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120948642991182117">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 03:48</td>
+              <td>世界のインフラへ接続トラフィックの再配分を開始</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120951972706558431">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 04:12</td>
+              <td>すべての展開を停止し、トラフィックを退避、影響サーバーを再起動</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120957934607700161">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 04:31</td>
+              <td>負荷上昇の主因はトラフィック増ではなく、サーバーが予期せず利用不能になったこと</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120962673911181437">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 04:50</td>
+              <td>自動ヘルスチェック失敗への構成変更を試験し、影響サーバーの再起動を開始</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120967496303858112">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 05:19</td>
+              <td>開始と相関する最近の変更は未特定。ヘルス処理コンポーネントが起源の可能性。追加影響の防止策を実施</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120974801388904932">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 06:00</td>
+              <td>別のヘルスチェック方式を検証し、一部サーバーが復帰。広く適用する。自動復旧も準備</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120985048337830246">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 06:40</td>
+              <td>再起動と検証を継続。少数の最近の構成更新の差し戻しが回復を早めるか評価</td>
+              <td><a href="https://x.com/MSFT365Status/status/2120995209261514827">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 07:09</td>
+              <td>これまでの対応は想定した効果に未達。中核プロセスの過負荷を確認し、切り分けて検証</td>
+              <td><a href="https://x.com/MSFT365Status/status/2121002505911857577">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 08:04</td>
+              <td>一部サーバーを復帰、現時点で安定。代替経路への移行と限定的な回復。クライアント再接続で段階的回復の可能性</td>
+              <td><a href="https://x.com/MSFT365Status/status/2121016338181161457">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 09:06</td>
+              <td>復帰サーバーがトラフィック受信後に再び無応答になる場合あり。一部地点でトラフィック種別を制限。旧構成での再構築を検証</td>
+              <td><a href="https://x.com/MSFT365Status/status/2121031935010951521">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 10:01</td>
+              <td>影響サービス・機能の一覧を改訂（管理センター MO1550821 の more info）</td>
+              <td><a href="https://x.com/MSFT365Status/status/2121045804852945188">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 10:59</td>
+              <td>隔離した範囲での再起動と可用性回復に好ましい結果。安定性を確認したうえで拡大する方針</td>
+              <td><a href="https://x.com/MSFT365Status/status/2121060437290516575">公式X</a></td>
+            </tr>
+            <tr>
+              <td>11/13 11:29</td>
+              <td>オンラインになりつつある地域のトラフィックを支えるため、可能な範囲でインフラ容量の改善を適用。変更結果を監視中</td>
+              <td><a href="https://x.com/MSFT365Status/status/2121067867252613473">公式X</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="workaround">
+      <h2>回避策</h2>
+      <p>公式Xで確認できた利用者向けの記述は、容量の回復に伴い、クライアントが再接続すると段階的に回復する場合がある、というものだけです。代替アプリの指定など、具体的な回避手順は公開の公式投稿からは確認できていません。</p>
+    </section>
+
+    <section id="next-update">
+      <h2>公式の次回更新予定</h2>
+      <p>取得した公式Xと公開ステータスページには、現在有効な「Next update by」時刻は見当たりません。管理センター原文は未取得です。</p>
+    </section>
+
+    <section id="unconfirmed">
+      <h2>未確認事項</h2>
+      <ul>
+        <li>Microsoft 365 管理センターの EX1550543 / MO1550821 原文（詳細な影響サービス一覧を含む）は未取得。大学のIT部署などが転載したとみられる一覧は、公式確定としていません。</li>
+        <li>最初の利用者影響が始まった正確な時刻、影響人数の公式発表、完全復旧の有無と時刻、根本原因、事後報告（PIR）。</li>
+        <li>消費者向け製品の個別インシデント番号と症状の詳細。</li>
+        <li>現在有効な公式の次回更新予定時刻。第三者転載の 2026-11-13 01:30 UTC（10:30 JST）は、確認時点ですでに経過しています。</li>
+        <li>「サイバー攻撃ではない」という文言は、取得した公式Xにはありません。<span class="badge-press">報道</span>The Guardian が広報担当の発言として報じ、BBC も同様の認識と記載しました。</li>
+        <li><span class="badge-press">報道</span>Downdetector の報告件数は報道上の数字で、公式の影響人数ではありません。ピーク付近で Outlook 関連が約13万件前後という報道が複数ありますが、集計時点で差があります（AP・Guardian は東部時間午後1時直後に約13万件、BBC は 18:00 GMT ごろに約14万件、Reuters は午後2時すぎ約9.7万件）。</li>
+        <li><span class="badge-press">報道</span>OpenAI と Anthropic の接続への影響は Reuters と Guardian が報じていますが、当事者の公式ステータスページは本調査では未確認です。</li>
+      </ul>
+    </section>
+
+    <section id="related">
+      <h2>同日・直近の別件</h2>
+      <ul>
+        <li>TM1550488（北米の Microsoft Teams）。公式が 2026-11-12 15:40 UTC（11/13 00:40 JST）に調査開始を投稿し、17:09 UTC（11/13 02:09 JST）に顧客影響は完全解消と発表。主件の初報より前です。<a href="https://x.com/MSFT365Status/status/2120926975690744054">解消を伝えた公式X</a></li>
+        <li>Azure ゲートウェイ障害のPIR（7Q30-010）。2026-09-30 20:30 UTC から 2026-10-01 02:15 UTC（JST: 10/01 05:30〜11:15）。複数リージョンのネットワークゲートウェイで管理操作の間欠障害など。この件の主障害とは別。<a href="https://azure.status.microsoft/en-us/status/history/">Azure Status History</a></li>
+      </ul>
+    </section>
+
+    <section id="sources">
+      <h2>出典リンク一覧</h2>
+      <p>公式（一次情報）</p>
+      <ul>
+        <li><a href="https://status.cloud.microsoft/">Microsoft service health status</a></li>
+        <li><a href="https://azure.status.microsoft/en-us/status">Azure Status</a></li>
+        <li><a href="https://azure.status.microsoft/en-us/status/history/">Azure Status History</a></li>
+        <li><a href="https://x.com/MSFT365Status/status/2121067867252613473">公式X @MSFT365Status（最新 11:29 JST）</a></li>
+        <li><a href="https://x.com/MSFT365Status">@MSFT365Status</a></li>
+      </ul>
+      <p>報道（裏取り・補足）</p>
+      <ul>
+        <li><span class="badge-press">報道</span><a href="https://apnews.com/article/microsoft-outlook-outage-email-teams-6376045281feb430c0b923e3a4b251c2">AP</a></li>
+        <li><span class="badge-press">報道</span><a href="https://www.theguardian.com/technology/2026/nov/13/microsoft-outage-outlook-teams-word-excel-reports">The Guardian</a></li>
+        <li><span class="badge-press">報道</span><a href="https://www.bbc.com/news/articles/c5gm3g9ldz8xo">BBC</a></li>
+        <li><span class="badge-press">報道</span><a href="https://www.theverge.com/tech/1032226/microsoft-outlook-is-down">The Verge</a></li>
+        <li><span class="badge-press">報道</span><a href="https://www.nikkei.com/article/DGXZQOGN12CY20S6A111C2000000/">日本経済新聞</a></li>
+        <li><span class="badge-press">報道</span><a href="https://www.sankei.com/article/20261113-5VICSNTLPRKLHPRVSBHJXDUGJM/">産経（共同）</a></li>
+      </ul>
+    </section>
+
+    <section id="checked">
+      <h2>最終確認・最終更新</h2>
+      <dl>
+        <dt>最終確認</dt>
+        <dd>2026-11-13 11:43 JST（公式公開ステータス、Azure Status、公式Xを再確認）</dd>
+        <dt>最終更新</dt>
+        <dd>2026-11-13 11:43 JST</dd>
+      </dl>
+      <p>このページは公式情報を手動でまとめたもので、Microsoft の公式ステータスページ自体ではありません。最新の状況は上記の公式出典で確認してください。</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>非公式のまとめです。公式情報(Microsoft 365 Service health / Azure Status)が優先します。</p>
+  </footer>
+</body>
+</html>
